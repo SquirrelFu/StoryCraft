@@ -1,0 +1,16 @@
+[
+{
+  "modid": "storycraft",
+  "name": "StoryCraft",
+  "description": "A mod for social interaction and dynamic stories in Minecraft",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Paradoxicalblock"],
+  "credits": "Forge team, Paradoxicalblock",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

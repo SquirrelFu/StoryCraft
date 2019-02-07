@@ -1,0 +1,6 @@
+{
+    "parent": "block/cube_all",
+    "textures": {
+        "all": "storycraft:blocks/social_block"
+    }
+}
