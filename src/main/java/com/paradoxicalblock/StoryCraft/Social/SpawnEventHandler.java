@@ -6,7 +6,6 @@ import com.paradoxicalblock.StoryCraft.entities.SocialVillager;
 import com.paradoxicalblock.StoryCraft.entities.SocialVillagerFemale;
 import com.paradoxicalblock.StoryCraft.entities.SocialVillagerMale;
 
-import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -23,12 +22,11 @@ public class SpawnEventHandler {
 			SocialVillager villager = (SocialVillager) event.getEntity();
 			if (!villager.world.isRemote)
 			{
-				villager.world.getPlayerEntityByName("Paradoxicalblock").sendMessage(new TextComponentString("Remote section fired."));
 				villager.getDataManager().set(SocialVillager.uuidKey, villager.getUniqueID().toString());
 			}
 			String villagerID = villager.getDataManager().get(SocialVillager.uuidKey);
 			PersonalManager manage = PersonalManager.get(event.getEntity().world);
-			if (!manage.personalityExists(villagerID))
+			if (manage.personalityExists(villagerID) == false)
 			{
 				Random rand = new Random();
 				int sexualityint = rand.nextInt(9);
@@ -63,7 +61,6 @@ public class SpawnEventHandler {
 				}
 				manage.addPersonality(villagerID, villager.getFriendly(), villager.getBrave(), villager.getGenerous(),
 						villager.getSexuality(), villager.getAppearance(), villager.getCareer());
-				villager.getDataManager().set(SocialVillager.uuidKey, "Blank");
 			}
 			else
 			{

@@ -41,9 +41,9 @@ public class RelationshipManager extends WorldSavedData {
 		}
 		return instance;
 	}
-	public boolean getCharmed(UUID subject, UUID object)
+	public boolean getCharmed(String subject, String object)
 	{
-		NBTTagCompound relationship = relationships.getCompoundTag(subject.toString()+object.toString());
+		NBTTagCompound relationship = relationships.getCompoundTag(subject+object);
 		return relationship.getBoolean("Charmed");
 	}
 	public void addRelationship(String identifier, UUID object)
@@ -52,23 +52,35 @@ public class RelationshipManager extends WorldSavedData {
 		relationship.setInteger("Opinion", 0);
 		relationship.setString("Context", "Neutral");
 		relationship.setBoolean("Charmed", false);
+		relationship.setBoolean("Apologized", false);
 		relationships.setTag(identifier+object.toString(), relationship);
 	}
-	public void setCharmed(UUID subject, UUID object)
+	public boolean getApologized(String subject, UUID object)
 	{
-		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		NBTTagCompound relate = relationships.getCompoundTag(subject+object.toString());
+		return relate.getBoolean("Apologized");
+	}
+	public void setApologized(String subject, UUID object)
+	{
+		NBTTagCompound relate = relationships.getCompoundTag(subject+object.toString());
+		relate.setBoolean("Apologized", false);
+		relationships.setTag(subject+object.toString(), relate);
+	}
+	public void setCharmed(String subject, UUID object)
+	{
+		NBTTagCompound relate = relationships.getCompoundTag(subject+object.toString());
 		relate.setBoolean("Charmed", true);
-		relationships.setTag(subject.toString()+object.toString(), relate);
+		relationships.setTag(subject+object.toString(), relate);
 	}
-	public void resetCharmed(UUID subject, UUID object)
+	public void resetCharmed(String subject, UUID object)
 	{
-		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		NBTTagCompound relate = relationships.getCompoundTag(subject+object.toString());
 		relate.setBoolean("Charmed", false);
-		relationships.setTag(subject.toString()+object.toString(), relate);
+		relationships.setTag(subject+object.toString(), relate);
 	}
-	public void changeOpinion(UUID subject, UUID object, int value)
+	public void changeOpinion(String subject, UUID object, int value)
 	{
-		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		NBTTagCompound relate = relationships.getCompoundTag(subject+object.toString());
 		int oldOpinion = relate.getInteger("Opinion");
 		int newOpinion = oldOpinion + value;
 		if (newOpinion > 100)
@@ -80,16 +92,16 @@ public class RelationshipManager extends WorldSavedData {
 			newOpinion = -100;
 		}
 		relate.setInteger("Opinion", newOpinion);
-		relationships.setTag(subject.toString()+object.toString(), relate);
+		relationships.setTag(subject+object.toString(), relate);
 	}
-	public NBTTagCompound getAllCharmed(UUID subject)
+	public NBTTagCompound getAllCharmed(String subject)
 	{
 		NBTTagCompound returnTag = new NBTTagCompound();
 		Iterator<String> iterate = relationships.getKeySet().iterator();
 		while (iterate.hasNext())
 		{
 			String relationshipKey = iterate.next();
-			if(relationshipKey.contains(subject.toString()));
+			if(relationshipKey.contains(subject));
 			{
 				NBTTagCompound intermediary = (NBTTagCompound) relationships.getTag(relationshipKey);
 				if (intermediary.getBoolean("Charmed"))
@@ -125,21 +137,21 @@ public class RelationshipManager extends WorldSavedData {
 			relationships.getCompoundTag(uuidPair).setBoolean("Charmed", false);
 		}
 	}
-	public Integer getOpinion(UUID subject, UUID object)
+	public Integer getOpinion(String subject, UUID object)
 	{
-		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		NBTTagCompound relate = relationships.getCompoundTag(subject+object.toString());
 		return relate.getInteger("Opinion");
 	}
 	//Generally only used when the charm action would normally take the opinion higher than 100,
 	//and thus must be directly set to 100 instead.
-	public void setOpinion(UUID subject, UUID object, int value)
+	public void setOpinion(String subject, UUID object, int value)
 	{
-		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		NBTTagCompound relate = relationships.getCompoundTag(subject+object.toString());
 		relate.setInteger("Opinion", value);
 	}
-	public String getContext(String identifier, UUID object)
+	public String getContext(String subject, UUID object)
 	{
-		NBTTagCompound relate = relationships.getCompoundTag(identifier+object.toString());
+		NBTTagCompound relate = relationships.getCompoundTag(subject+object.toString());
 		return relate.getString("Context");
 	}
 }

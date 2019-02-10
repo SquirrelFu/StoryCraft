@@ -2,6 +2,7 @@ package com.paradoxicalblock.StoryCraft.entities;
 
 import java.util.List;
 
+import com.paradoxicalblock.StoryCraft.Main.StoryCraft;
 import com.paradoxicalblock.StoryCraft.Social.RelationshipManager;
 
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -18,7 +19,6 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 public class SocialVillager extends EntityAgeable {
@@ -32,13 +32,12 @@ public class SocialVillager extends EntityAgeable {
 	protected int generosity;
 	public List<Integer> maleCareerSkins;
 	public List<Integer> femaleCareerSkins;
-	public static DataParameter<String> uuidKey;
+	public static DataParameter<String> uuidKey = EntityDataManager.createKey(SocialVillager.class, DataSerializers.STRING);
 	
 	@Override
 	public void entityInit()
 	{
 		super.entityInit();
-		uuidKey = EntityDataManager.createKey(SocialVillager.class, DataSerializers.STRING);
 		this.getDataManager().register(uuidKey, "Blank");
 	}
 	public int getFriendly()
@@ -165,26 +164,15 @@ public class SocialVillager extends EntityAgeable {
 	@Override
 	public boolean processInteract(EntityPlayer player, EnumHand hand)
 	{
-		if (!this.world.isRemote)
-		{
-			player.sendMessage(new TextComponentString("Server UUID: " + this.getUniqueID()));
-			return true;
-		}
-		player.sendMessage(new TextComponentString("Client UUID: " + this.getUniqueID()));
-		return false;
-	}
-	/*@Override
-	public boolean processInteract(EntityPlayer player, EnumHand hand)
-	{
 		world = player.world;
 		if (!world.isRemote)
         {	
 			//This block of code is for adding a new relationship if the player character hasn't met
 			//the villager in question before.
 			RelationshipManager manager = RelationshipManager.get(world);
-			if (manager.getContext(""+getUniqueID(), player.getUniqueID()) == "")
+			if (manager.getContext(this.getDataManager().get(SocialVillager.uuidKey), player.getUniqueID()) == "")
 			{
-				manager.addRelationship(""+getUniqueID(), player.getUniqueID());
+				manager.addRelationship(this.getDataManager().get(SocialVillager.uuidKey), player.getUniqueID());
 				manager.markDirty();
 			}
 			return true;
@@ -192,7 +180,7 @@ public class SocialVillager extends EntityAgeable {
         }
 		player.openGui(StoryCraft.instance, 1, world, getEntityId(), 0, 0);
 		return false;
-	}*/
+	}
 	public void markForReset()
 	{
 		resetNeeded = true;

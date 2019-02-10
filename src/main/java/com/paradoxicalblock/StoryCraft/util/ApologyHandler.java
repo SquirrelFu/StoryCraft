@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.paradoxicalblock.StoryCraft.Main.StoryCraft;
 import com.paradoxicalblock.StoryCraft.Social.PersonalManager;
 import com.paradoxicalblock.StoryCraft.Social.RelationshipManager;
+import com.paradoxicalblock.StoryCraft.entities.SocialVillager;
 import com.paradoxicalblock.StoryCraft.util.packets.ApologyPacket;
 
 import net.minecraft.entity.Entity;
@@ -26,14 +27,15 @@ public class ApologyHandler implements IMessageHandler<ApologyPacket, IMessage>{
 		Entity target = server.getEntityFromUuid(fullUUID);
 		RelationshipManager manager = RelationshipManager.get(player.getEntityWorld());
 		PersonalManager manager2 = PersonalManager.get(player.getEntityWorld());
-		int totalOpinion = manager.getOpinion(fullUUID, player.getUniqueID());
+		String serverID = target.getDataManager().get(SocialVillager.uuidKey);
+		int totalOpinion = manager.getOpinion(serverID, player.getUniqueID());
 		if (totalOpinion < 0)
 		{
 			float modifier = (float) manager2.getFriendly(target.getUniqueID().toString())/400 + totalOpinion/400;
 			if (Math.random() < 0.66 + modifier)
 			{
 				player.sendMessage(new TextComponentString("<" + target.getCustomNameTag() + ">: ...Sure. I forgive you."));
-				manager.changeOpinion(fullUUID, player.getUniqueID(), 10);
+				manager.changeOpinion(serverID, player.getUniqueID(), 10);
 				for (int i = 0; i < 10; i++)
 				{
 					StoryCraft.proxy.generatePleasedParticles(target);

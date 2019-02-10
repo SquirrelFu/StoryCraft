@@ -27,16 +27,17 @@ public class InsultHandler implements IMessageHandler<InsultPacket, IMessage> {
 		SocialVillager target = (SocialVillager) server.getEntityFromUuid(fullUUID);
 		RelationshipManager manager = RelationshipManager.get(player.getEntityWorld());
 		PersonalManager manager2 = PersonalManager.get(player.getEntityWorld());
-		int totalOpinion = manager.getOpinion(target.getUniqueID(), player.getUniqueID());
+		String serverID = target.getDataManager().get(SocialVillager.uuidKey);
+		int totalOpinion = manager.getOpinion(serverID, player.getUniqueID());
 		//Target has a 10% chance to attack the player for insulting them, if their bravery is high
-		if (target.getDataManager().get(target.braveryKey) >= 75)
+		if (manager2.getBrave(serverID) >= 75)
 		{
 			if (Math.random() >= 0.9)
 			{
 				target.tasks.addTask(2, new EntityAIAttackMelee(target, 1.0D, false));
 				target.setAttackTarget(player);
 				player.sendMessage(new TextComponentString("<" + target.getDisplayName() + ">: You're gonna pay!"));
-				manager.changeOpinion(target.getUniqueID(), player.getUniqueID(), -30);
+				manager.changeOpinion(serverID, player.getUniqueID(), -30);
 				for (int i = 0; i < 30; i++)
 				{
 					StoryCraft.proxy.generateDispleasedParticles(target);
@@ -67,7 +68,7 @@ public class InsultHandler implements IMessageHandler<InsultPacket, IMessage> {
 			{
 				StoryCraft.proxy.generateDispleasedParticles(target);
 			}
-			manager.changeOpinion(target.getUniqueID(), player.getUniqueID(), -15);
+			manager.changeOpinion(serverID, player.getUniqueID(), -15);
 			
 		}
 		

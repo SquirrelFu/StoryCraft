@@ -3,6 +3,7 @@ package com.paradoxicalblock.StoryCraft.util;
 import java.util.UUID;
 
 import com.paradoxicalblock.StoryCraft.Social.RelationshipManager;
+import com.paradoxicalblock.StoryCraft.entities.SocialVillager;
 import com.paradoxicalblock.StoryCraft.util.packets.ExaminePacket;
 
 import net.minecraft.client.Minecraft;
@@ -25,7 +26,8 @@ public class ExamineHandler implements IMessageHandler<ExaminePacket, IMessage> 
 		  UUID fullUUID = new UUID(message.MSB,message.LSB);
 		  Entity target = server.getEntityFromUuid(fullUUID);
 		  RelationshipManager manager = RelationshipManager.get(serverPlayer.world);
-		  int opinionValue = manager.getOpinion(fullUUID, serverPlayer.getUniqueID());
+		  String serverID = target.getDataManager().get(SocialVillager.uuidKey);
+		  int opinionValue = manager.getOpinion(serverID, serverPlayer.getUniqueID());
 		  if (opinionValue >= 25 && opinionValue < 50)
 		  {
 			  opinionStatus = " has a favorable opinion of you";
@@ -58,7 +60,7 @@ public class ExamineHandler implements IMessageHandler<ExaminePacket, IMessage> 
 		  {
 			  opinionStatus = " hates your guts";
 		  }
-		  Minecraft.getMinecraft().player.sendMessage(new TextComponentString(target.getName() + opinionStatus));
+		  Minecraft.getMinecraft().player.sendMessage(new TextComponentString(target.getCustomNameTag() + opinionStatus));
 		  return null;
 	  }
 }

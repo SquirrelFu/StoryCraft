@@ -9,8 +9,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class StoryEntities {
-	static ResourceLocation villagerMale = new ResourceLocation("storycraft:textures/entity/steve.png");
-	static ResourceLocation villagerFemale = new ResourceLocation("storycraft:textures/entity/alex.png");
+	static ResourceLocation villagerMale = new ResourceLocation("storycraft:social_villager_male");
+	static ResourceLocation villagerFemale = new ResourceLocation("storycraft:social_villager_female");
 
 	public static void init()
 	{

@@ -1,6 +1,5 @@
 package com.paradoxicalblock.StoryCraft.Social;
 
-import java.util.Iterator;
 import java.util.Random;
 
 import com.paradoxicalblock.StoryCraft.Main.StoryCraft;
@@ -12,7 +11,7 @@ import net.minecraft.world.storage.WorldSavedData;
 
 public class PersonalManager extends WorldSavedData {
 	private static final String DATA_NAME = StoryCraft.MODID + "_PersonalData";
-	private NBTTagCompound outlooks = new NBTTagCompound();
+	private static NBTTagCompound outlooks = new NBTTagCompound();
 	public PersonalManager() {
 		super(DATA_NAME);
 	}
@@ -32,16 +31,9 @@ public class PersonalManager extends WorldSavedData {
 	}
 	public boolean personalityExists(String string)
 	{
-		Iterator<String> outlookIDs = outlooks.getKeySet().iterator();
-		while (outlookIDs.hasNext())
-		{
-			
-			if (outlookIDs.next() == string)
-			{
-				return true;
-			}
-		}
-		return false;
+		StoryCraft.logger.info("String in: " + string);
+		StoryCraft.logger.info(outlooks.getKeySet());
+		return outlooks.hasKey(string);
 	}
 	public void addPersonality(String string)
 	{
