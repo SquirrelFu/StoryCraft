@@ -2,7 +2,6 @@ package com.paradoxicalblock.StoryCraft.util;
 
 import java.util.UUID;
 
-import com.paradoxicalblock.StoryCraft.Social.Relationship;
 import com.paradoxicalblock.StoryCraft.Social.RelationshipManager;
 import com.paradoxicalblock.StoryCraft.util.packets.OpinionPacket;
 
@@ -17,17 +16,17 @@ public class OpinionHandler implements IMessageHandler<OpinionPacket, IMessage>{
 	public IMessage onMessage(OpinionPacket message, MessageContext ctx) {
 		EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
 		UUID fullUUID = new UUID(message.MSB,message.LSB);
-		RelationshipManager manager = RelationshipManager.getInstance();
-		Relationship relate = manager.getRelationship(fullUUID, serverPlayer.getUniqueID());
-		if (relate.getOpinion() < 100)
+		RelationshipManager manager = RelationshipManager.get(serverPlayer.world);
+		int opinionValue = manager.getOpinion(fullUUID, serverPlayer.getUniqueID());
+		if (opinionValue < 100)
 		{
-			if((relate.getOpinion() + 5) > 100)
+			if((opinionValue + 5) > 100)
 			{
-				relate.setOpinion(100);
+				manager.setOpinion(fullUUID, serverPlayer.getUniqueID(), 100);
 			}
 			else
 			{
-				relate.modifyOpinion(message.magnitude);	
+				manager.changeOpinion(fullUUID, serverPlayer.getUniqueID(), 5);
 			}
 			
 		}

@@ -1,23 +1,18 @@
 package com.paradoxicalblock.StoryCraft.Social;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.UUID;
 
 import com.paradoxicalblock.StoryCraft.Main.StoryCraft;
 
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldSavedData;
 
 public class RelationshipManager extends WorldSavedData {
-	private static List<Relationship> relationships = new ArrayList<Relationship>();
 	private static final String DATA_NAME = StoryCraft.MODID + "_SocialData";
-	private static RelationshipManager INSTANCE;
+	private NBTTagCompound relationships = new NBTTagCompound();
 	public RelationshipManager() {
 		super(DATA_NAME);
 	}
@@ -25,106 +20,126 @@ public class RelationshipManager extends WorldSavedData {
 	{
 		super(s);
 	}
-	public Relationship getRelationship(UUID subject, UUID object)
-	{
-		Iterator<Relationship> relateIter = relationships.iterator();
-		while (relateIter.hasNext())
-		{
-			Relationship relate = relateIter.next();
-			if (relate.getSubject().equals(subject) && relate.getObject().equals(object))
-			{
-				return relate;
-			}
-		}
-		return null;
-	}
-	public List<Relationship> getAllRelationships()
-	{
-		return relationships;
-	}
-	public List<Relationship> getAllTargetRelationships(UUID subject)
-	{
-		List<Relationship> listOut = new ArrayList<Relationship>();
-		for (Relationship relate : relationships)
-		{
-			if (relate.getSubject().equals(subject))
-			{
-				listOut.add(relate);
-			}
-		}
-		return listOut;
-	}
-	public void AddRelationship(UUID subject, UUID object, int startingOpinion, String context)
-	{
-		relationships.add(new Relationship(subject, object, startingOpinion, context));
-		this.markDirty();
-	}
-	public void AddRelationship(UUID subject, UUID object, int startingOpinion)
-	{
-		relationships.add(new Relationship(subject, object, startingOpinion, "Neutral"));
-		this.markDirty();
-	}
-	public void AddRelationship(UUID subject, UUID object)
-	{
-		relationships.add(new Relationship(subject, object, 0, "Neutral"));
-		this.markDirty();
-	}
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
-		relationships.clear();
-		NBTTagList relateList = nbt.getTagList("Relationships", 10);
-		Iterator<NBTBase> relateIter = relateList.iterator();
-		while (relateIter.hasNext())
-		{
-			NBTTagCompound individualRelate = (NBTTagCompound) relateIter.next();
-			UUID subject = individualRelate.getUniqueId("Subject");
-			UUID object = individualRelate.getUniqueId("Object");
-			int opinion = individualRelate.getInteger("Opinion");
-			String context = individualRelate.getString("Context");
-			boolean charmed = individualRelate.getBoolean("Charmed");
-			Relationship loadRelate = new Relationship(subject,object,opinion,context,charmed);
-			relationships.add(loadRelate);
-		}
+		relationships = nbt.getCompoundTag("Relationships");
 		
-	}
-	public void relationsClear()
-	{
-		relationships.clear();
-		this.markDirty();
 	}
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		StoryCraft.logger.info("writeToNBT called.");
-		NBTTagList relationList = new NBTTagList();
-		for (Relationship relate : relationships)
-		{
-			NBTTagCompound relateSave = new NBTTagCompound();
-			relateSave.setInteger("Opinion", relate.getOpinion());
-			relateSave.setString("Context", relate.getContext());
-			relateSave.setBoolean("Charmed", relate.getCharmed());
-			relateSave.setUniqueId("Subject", relate.getSubject());
-			relateSave.setUniqueId("Object", relate.getObject());
-			relationList.appendTag(relateSave);
-		}
-		compound.setTag("Relationships", relationList);
+		compound.setTag("Relationships", relationships);
 		return compound;
 	}
-	public static void SetInstance(World world)
+	public static RelationshipManager get(World world)
 	{
-		String tagname = StoryCraft.MODID + "_SocialData";
 		MapStorage storage = world.getMapStorage();
-		RelationshipManager result = (RelationshipManager)storage.getOrLoadData(RelationshipManager.class, tagname);
-		if (result == null) {
-			result = new RelationshipManager(tagname);
-			storage.setData(tagname, result);
+		RelationshipManager instance = (RelationshipManager) storage.getOrLoadData(RelationshipManager.class,DATA_NAME);
+		if (instance == null)
+		{
+			instance = new RelationshipManager();
+			storage.setData(DATA_NAME, instance);
 		}
-		INSTANCE = result;
+		return instance;
 	}
-	public static void resetInstance() {
-		INSTANCE = null;
-	}
-	public static RelationshipManager getInstance()
+	public boolean getCharmed(UUID subject, UUID object)
 	{
-		return INSTANCE;
+		NBTTagCompound relationship = relationships.getCompoundTag(subject.toString()+object.toString());
+		return relationship.getBoolean("Charmed");
+	}
+	public void addRelationship(String identifier, UUID object)
+	{
+		NBTTagCompound relationship = new NBTTagCompound();
+		relationship.setInteger("Opinion", 0);
+		relationship.setString("Context", "Neutral");
+		relationship.setBoolean("Charmed", false);
+		relationships.setTag(identifier+object.toString(), relationship);
+	}
+	public void setCharmed(UUID subject, UUID object)
+	{
+		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		relate.setBoolean("Charmed", true);
+		relationships.setTag(subject.toString()+object.toString(), relate);
+	}
+	public void resetCharmed(UUID subject, UUID object)
+	{
+		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		relate.setBoolean("Charmed", false);
+		relationships.setTag(subject.toString()+object.toString(), relate);
+	}
+	public void changeOpinion(UUID subject, UUID object, int value)
+	{
+		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		int oldOpinion = relate.getInteger("Opinion");
+		int newOpinion = oldOpinion + value;
+		if (newOpinion > 100)
+		{
+			newOpinion = 100;
+		}
+		else if(newOpinion < -100)
+		{
+			newOpinion = -100;
+		}
+		relate.setInteger("Opinion", newOpinion);
+		relationships.setTag(subject.toString()+object.toString(), relate);
+	}
+	public NBTTagCompound getAllCharmed(UUID subject)
+	{
+		NBTTagCompound returnTag = new NBTTagCompound();
+		Iterator<String> iterate = relationships.getKeySet().iterator();
+		while (iterate.hasNext())
+		{
+			String relationshipKey = iterate.next();
+			if(relationshipKey.contains(subject.toString()));
+			{
+				NBTTagCompound intermediary = (NBTTagCompound) relationships.getTag(relationshipKey);
+				if (intermediary.getBoolean("Charmed"))
+				{
+					returnTag.setBoolean(relationshipKey, true);
+				}
+				
+			}
+		}
+		return returnTag;
+	}
+	//Method used if the time is NOT skipped forward a day, and instead sunrise occurs naturally.
+	public void resetCharmedDaily(String identifier)
+	{
+			Iterator<String> iterate = relationships.getKeySet().iterator();
+			while (iterate.hasNext())
+			{
+				String relationshipKey = iterate.next();
+				if (relationshipKey.contains(identifier))
+				{
+					NBTTagCompound toReset = relationships.getCompoundTag(relationshipKey);
+					toReset.setBoolean("Charmed", false);
+				}
+			}
+	}
+	//Method used if time IS skipped forward a day via sleep.
+	public void resetAllCharmed()
+	{
+		Iterator<String> iterate = relationships.getKeySet().iterator();
+		while (iterate.hasNext())
+		{
+			String uuidPair = iterate.next();
+			relationships.getCompoundTag(uuidPair).setBoolean("Charmed", false);
+		}
+	}
+	public Integer getOpinion(UUID subject, UUID object)
+	{
+		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		return relate.getInteger("Opinion");
+	}
+	//Generally only used when the charm action would normally take the opinion higher than 100,
+	//and thus must be directly set to 100 instead.
+	public void setOpinion(UUID subject, UUID object, int value)
+	{
+		NBTTagCompound relate = relationships.getCompoundTag(subject.toString()+object.toString());
+		relate.setInteger("Opinion", value);
+	}
+	public String getContext(String identifier, UUID object)
+	{
+		NBTTagCompound relate = relationships.getCompoundTag(identifier+object.toString());
+		return relate.getString("Context");
 	}
 }

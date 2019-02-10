@@ -2,17 +2,18 @@ package com.paradoxicalblock.StoryCraft.util;
 
 import java.util.UUID;
 
-import com.paradoxicalblock.StoryCraft.Social.Personality;
-import com.paradoxicalblock.StoryCraft.Social.PersonalityManager;
-import com.paradoxicalblock.StoryCraft.Social.Relationship;
+import com.paradoxicalblock.StoryCraft.Main.StoryCraft;
+import com.paradoxicalblock.StoryCraft.Social.PersonalManager;
 import com.paradoxicalblock.StoryCraft.Social.RelationshipManager;
 import com.paradoxicalblock.StoryCraft.entities.SocialVillager;
 import com.paradoxicalblock.StoryCraft.util.packets.CharmPacket;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -25,31 +26,49 @@ public class CharmHandler implements IMessageHandler<CharmPacket, IMessage> {
 		  MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		  EntityPlayerMP player = ctx.getServerHandler().player;
 		  UUID fullUUID = new UUID(message.MSB,message.LSB);
-		  RelationshipManager manage2 = RelationshipManager.getInstance();
-		  Relationship relate = manage2.getRelationship(fullUUID, player.getUniqueID());
 		  SocialVillager target = (SocialVillager) server.getEntityFromUuid(fullUUID);
-		  if (relate.getCharmed() == false)
+		  for (String string  : target.getDataManager().get(target.charmKey).getKeySet() )
 		  {
-			  PersonalityManager manage = PersonalityManager.getInstance();
-			  Personality personality = manage.getPersonality(fullUUID);
-			  int friendliness = personality.getFriendly();
-			  float modifier = (float) friendliness/400;
-			  if (Math.random() < 0.75 + modifier)
+			  if (string.contains(player.getUniqueID().toString()))
 			  {
-				  Minecraft.getMinecraft().player.sendMessage(new TextComponentString(target.getName() + " is impressed!"));
+				  NBTTagCompound nbt = target.getDataManager().get(target.charmKey).getCompoundTag(string);
+				  if (nbt.getBoolean("Charmed") == true)
+				  {
+					  Minecraft.getMinecraft().player.sendMessage(new TextComponentString("<" + target.getCustomNameTag() + ">: Give it a rest, will you?"));
+					  return null;
+				  }
+				  charmAttempt(fullUUID, player.getUniqueID(), player.world);
+				  return null;
 			  }
-			  else
+			  charmAttempt(fullUUID, player.getUniqueID(), player.world);
+			  return null;
+		  }
+		  charmAttempt(fullUUID, player.getUniqueID(), player.world);
+		  return null;
+	  }
+	  public void charmAttempt(UUID uuid, UUID object, World world)
+	  {
+		  MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		  RelationshipManager relate = RelationshipManager.get(world);
+		  PersonalManager personal = PersonalManager.get(world);
+		  SocialVillager target = (SocialVillager) server.getEntityFromUuid(uuid);
+		  float modifier = (float) personal.getFriendly(target.getUniqueId())/400;
+		  if (Math.random() < 0.66 + modifier)
+		  {
+			  for (int i = 0; i < 5; i++)
 			  {
-				  Minecraft.getMinecraft().player.sendMessage(new TextComponentString(target.getName() + " doesn't seem swayed."));
+				  StoryCraft.proxy.generatePleasedParticles(target);
 			  }
-			  relate.setCharmed();
-			  target.markForReset();
-			  manage2.markDirty();
+			  Minecraft.getMinecraft().player.sendMessage(new TextComponentString("<" + target.getCustomNameTag() + ">: Hey, neat!"));
+			  relate.changeOpinion(uuid, object, 5);
+			  
 		  }
 		  else
 		  {
-			  Minecraft.getMinecraft().player.sendMessage(new TextComponentString("You've already tried to charm " + target.getName() + " today!"));
+			  Minecraft.getMinecraft().player.sendMessage(new TextComponentString("<" + target.getCustomNameTag() + ">: Am I supposed to be impressed?"));
 		  }
-		  return null;
+		  relate.setCharmed(uuid, object);
+		  target.markForReset();
+		  relate.markDirty();
 	  }
 }

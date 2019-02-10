@@ -1,1 +1,3 @@
-tile.storycraft.socialBlock.name=Social Test Block
+entity.social_villager.name=Social Villager
+entity.SocialVillagerMale.name=Male Social Villager
+entity.SocialVillagerFemale.name=Female Social Villager

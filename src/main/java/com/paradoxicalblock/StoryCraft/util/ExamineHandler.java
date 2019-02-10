@@ -2,9 +2,6 @@ package com.paradoxicalblock.StoryCraft.util;
 
 import java.util.UUID;
 
-import com.paradoxicalblock.StoryCraft.Social.Personality;
-import com.paradoxicalblock.StoryCraft.Social.PersonalityManager;
-import com.paradoxicalblock.StoryCraft.Social.Relationship;
 import com.paradoxicalblock.StoryCraft.Social.RelationshipManager;
 import com.paradoxicalblock.StoryCraft.util.packets.ExaminePacket;
 
@@ -27,39 +24,37 @@ public class ExamineHandler implements IMessageHandler<ExaminePacket, IMessage> 
 		  EntityPlayerMP serverPlayer = ctx.getServerHandler().player;
 		  UUID fullUUID = new UUID(message.MSB,message.LSB);
 		  Entity target = server.getEntityFromUuid(fullUUID);
-		  RelationshipManager manager = RelationshipManager.getInstance();
-		  PersonalityManager manager2 = PersonalityManager.getInstance();
-		  Relationship relate = manager.getRelationship(fullUUID, serverPlayer.getUniqueID());
-		  Personality personality = manager2.getPersonality(fullUUID);
-		  if (relate.getOpinion() >= 25 && relate.getOpinion() < 50)
+		  RelationshipManager manager = RelationshipManager.get(serverPlayer.world);
+		  int opinionValue = manager.getOpinion(fullUUID, serverPlayer.getUniqueID());
+		  if (opinionValue >= 25 && opinionValue < 50)
 		  {
 			  opinionStatus = " has a favorable opinion of you";
 		  }
-		  if(relate.getOpinion() >= 50 && relate.getOpinion() < 75)
+		  if(opinionValue >= 50 && opinionValue < 75)
 		  {
 			  opinionStatus = " is quite fond of you";
 		  }
-		  if(relate.getOpinion() >= 75 && relate.getOpinion() <= 100)
+		  if(opinionValue >= 75 && opinionValue <= 100)
 		  {
 			  opinionStatus = " adores your presence";
 		  }
-		  if (relate.getOpinion() >= 0 && relate.getOpinion() < 25)
+		  if (opinionValue >= 0 && opinionValue < 25)
 		  {
 			  opinionStatus = " is uncertain what to think of you";
 		  }
-		  if (relate.getOpinion() < 0 && relate.getOpinion() > -25)
+		  if (opinionValue < 0 && opinionValue > -25)
 		  {
 			  opinionStatus = " is wary of you";
 		  }
-		  if (relate.getOpinion() <= -25 && relate.getOpinion() > -50)
+		  if (opinionValue <= -25 && opinionValue > -50)
 		  {
 			  opinionStatus = " finds you distasteful";
 		  }
-		  if (relate.getOpinion() <= -50 && relate.getOpinion() > -75)
+		  if (opinionValue <= -50 && opinionValue > -75)
 		  {
 			  opinionStatus = " strongly dislikes you";
 		  }
-		  if (relate.getOpinion() <= -75 && relate.getOpinion() >= -100)
+		  if (opinionValue <= -75 && opinionValue >= -100)
 		  {
 			  opinionStatus = " hates your guts";
 		  }

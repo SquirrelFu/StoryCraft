@@ -5,6 +5,7 @@ import com.paradoxicalblock.StoryCraft.entities.StoryEntities;
 import com.paradoxicalblock.StoryCraft.util.StoryCraftPacketHandler;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -36,6 +37,14 @@ public class CommonProxy {
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
+    }
+    public void generatePleasedParticles(Entity entity)
+    {
+    	
+    }
+    public void generateDispleasedParticles(Entity entity)
+    {
+    	
     }
  
 }

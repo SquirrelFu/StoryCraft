@@ -9,15 +9,18 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class StoryEntities {
-	static ResourceLocation mobTexture = new ResourceLocation("storycraft:textures/entity/ender_girl_skin.png");
+	static ResourceLocation villagerMale = new ResourceLocation("storycraft:textures/entity/steve.png");
+	static ResourceLocation villagerFemale = new ResourceLocation("storycraft:textures/entity/alex.png");
 
 	public static void init()
 	{
-		int id = 1;
-        EntityRegistry.registerModEntity(mobTexture, SocialVillager.class, "SocialVillager", id++, StoryCraft.instance, 64, 3, true, 0x996600, 0x00ff00);
+        EntityRegistry.registerModEntity(villagerMale, SocialVillagerMale.class, "SocialVillagerMale", 0, StoryCraft.instance, 64, 3, true, 0xadd8e6, 0x0008b);
+        EntityRegistry.registerModEntity(villagerFemale, SocialVillagerFemale.class, "SocialVillagerFemale", 1, StoryCraft.instance, 64, 3, true, 0xffb6c1, 0xff1493);
+
 	}
 	@SideOnly(Side.CLIENT)
     public static void initModels() {
-        RenderingRegistry.registerEntityRenderingHandler(SocialVillager.class, RenderSocialVillager.FACTORY);
+        RenderingRegistry.registerEntityRenderingHandler(SocialVillagerMale.class, RenderSocialVillagerMale.FACTORY);
+        RenderingRegistry.registerEntityRenderingHandler(SocialVillagerFemale.class, RenderSocialVillagerFemale.FACTORY);
     }
 }
